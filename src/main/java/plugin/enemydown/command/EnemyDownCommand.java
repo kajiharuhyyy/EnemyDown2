@@ -1,13 +1,15 @@
 package plugin.enemydown.command;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import java.util.List;
 import java.util.SplittableRandom;
@@ -19,14 +21,31 @@ public class EnemyDownCommand implements CommandExecutor {
         if (sender instanceof Player player){
             World world = player.getWorld();
 
-            player.setHealth(20);
-            player.setFoodLevel(20);
+            //プレイヤーの状態を初期化する。(体力と空腹を最大値にする。)
+            initPlayerStatus(player);
 
             world.spawnEntity(getEnemySpawnLocation(player, world), getEnemy());
         }
         return false;
     }
 
+    /**
+     * ゲームを始める前にプレイヤーの状態を設定する。
+     * 体力と空腹を最大にして、装備はダイアモンド一式にする。
+     *
+     * @param player コマンドを実行したプレイヤー
+     */
+    private static void initPlayerStatus(Player player) {
+        player.setHealth(20);
+        player.setFoodLevel(20);
+
+        PlayerInventory inventory = player.getInventory();
+        inventory.setHelmet(new ItemStack(Material.DIAMOND_HELMET));
+        inventory.setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
+        inventory.setLeggings(new ItemStack(Material.DIAMOND_LEGGINGS));
+        inventory.setBoots(new ItemStack(Material.DIAMOND_BOOTS));
+        inventory.setItemInMainHand(new ItemStack(Material.DIAMOND_SWORD));
+    }
 
 
     /**
