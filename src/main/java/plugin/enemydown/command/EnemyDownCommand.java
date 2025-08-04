@@ -1,5 +1,6 @@
 package plugin.enemydown.command;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -13,16 +14,24 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import plugin.enemydown.Main;
 import plugin.enemydown.data.PlayerScore;
 
 import java.util.*;
 
 public class EnemyDownCommand implements CommandExecutor, Listener {
 
+    private Main main;
     private List<PlayerScore> playerScoreList = new ArrayList<>();
+    private int gameTime = 20;
+
+    public EnemyDownCommand(Main main) {
+        this.main = main;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
         if (sender instanceof Player player){
             if (playerScoreList.isEmpty()) {
                 addNewPlayer(player);
@@ -33,13 +42,21 @@ public class EnemyDownCommand implements CommandExecutor, Listener {
                     }
                 }
             }
-
+            gameTime = 20;
             World world = player.getWorld();
 
             //プレイヤーの状態を初期化する。(体力と空腹を最大値にする。)
             initPlayerStatus(player);
 
-            world.spawnEntity(getEnemySpawnLocation(player, world), getEnemy());
+            Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
+                if (gameTime <= 0) {
+                    Runnable.cancel();
+                    player.sendMessage("ゲームが終了しました！");
+                    return;
+                }
+                world.spawnEntity(getEnemySpawnLocation(player, world), getEnemy());
+                gameTime -= 5;
+            }, 0, 5 * 20);
         }
         return false;
     }
@@ -55,7 +72,7 @@ public class EnemyDownCommand implements CommandExecutor, Listener {
         for(PlayerScore playerScore : playerScoreList) {
           if (playerScore.getPlayerName().equals(player.getName())) {
               playerScore.setScore(playerScore.getScore() + 10);
-              player.sendMessage("敵を倒した！ 現在のスコアは　" + playerScore.getScore() + "点！");
+              player.sendMessage("敵を倒した！ 現在のスコアは " + playerScore.getScore() + "点！");
           }
         }
     }
