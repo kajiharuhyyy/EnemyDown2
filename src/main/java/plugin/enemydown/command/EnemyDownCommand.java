@@ -27,7 +27,7 @@ import java.util.*;
 public class EnemyDownCommand extends BaseCommand implements Listener {
 
     public static final int GAME_TIME = 20;
-    private Main main;
+    private final Main main;
     private List<PlayerScore> playerScoreList = new ArrayList<>();
 
     public EnemyDownCommand(Main main) {
